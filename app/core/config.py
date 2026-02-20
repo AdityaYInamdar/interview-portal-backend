@@ -46,7 +46,9 @@ class Settings(BaseSettings):
     @validator("CORS_ORIGINS", pre=True)
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
+            if not v.strip():
+                return ["http://localhost:5173", "http://localhost:5174"]
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
     # Email
@@ -86,6 +88,7 @@ class Settings(BaseSettings):
         env_file = str(ENV_FILE)
         case_sensitive = True
         extra = "ignore"
+        env_ignore_empty = True  # treat empty string env vars as unset → use field default
 
 
 # Create global settings instance

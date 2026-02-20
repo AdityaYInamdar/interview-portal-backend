@@ -49,11 +49,11 @@ services:
       - key: DEBUG
         value: "False"
 
-      # ── CORS — set to your actual Vercel URL after deploy ─────────────
+      # ── CORS — update to your Vercel URL after frontend deploys ─────────
       - key: CORS_ORIGINS
-        value: https://your-app.vercel.app   # REPLACE with real URL
+        value: http://localhost:5173,http://localhost:5174
       - key: FRONTEND_URL
-        value: https://your-app.vercel.app   # REPLACE with real URL
+        value: http://localhost:5173
 
       # ── Redis (use Upstash free tier — see README for setup) ──────────
       - key: REDIS_URL
