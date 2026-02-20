@@ -20,7 +20,6 @@ services:
     env: python
     region: oregon          # change to: ohio | frankfurt | singapore
     plan: free              # upgrade to: starter ($7/mo) for no sleep
-    pythonVersion: "3.11.9"
     rootDir: .
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
@@ -28,6 +27,10 @@ services:
     autoDeploy: true
 
     envVars:
+      # ── Python version (must be explicit — prevents Render from defaulting to 3.14) ──
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+
       # ── Supabase ─────────────────────────────────────────────────────────
       - key: SUPABASE_URL
         sync: false          # set manually in Render dashboard
@@ -76,12 +79,13 @@ services:
     env: python
     region: oregon
     plan: free
-    pythonVersion: "3.11.9"
     rootDir: .
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A app.celery_worker worker --loglevel=info --concurrency=2
 
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
