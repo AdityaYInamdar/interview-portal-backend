@@ -1,0 +1,106 @@
+# render.yaml — Render Blueprint
+# Deploy the full backend stack (API + Celery worker) with one click.
+# https://render.com/docs/blueprint-spec
+#
+# HOW TO USE
+# ----------
+# 1. Push this repo to GitHub.
+# 2. Go to https://dashboard.render.com → New → Blueprint.
+# 3. Connect your repo. Render reads this file automatically.
+# 4. Fill in the secret env vars (marked `sync: false`) in the Render dashboard.
+#
+# IMPORTANT: Free-tier web services sleep after 15 min of inactivity.
+#            Upgrade to Starter ($7/mo) for always-on production use.
+
+services:
+
+  # ── Backend API (FastAPI + Socket.IO) ──────────────────────────────────────
+  - type: web
+    name: interview-portal-api
+    env: python
+    region: oregon          # change to: ohio | frankfurt | singapore
+    plan: free              # upgrade to: starter ($7/mo) for no sleep
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # ── Supabase ─────────────────────────────────────────────────────────
+      - key: SUPABASE_URL
+        sync: false          # set manually in Render dashboard
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+
+      # ── Security ─────────────────────────────────────────────────────────
+      - key: SECRET_KEY
+        generateValue: true  # Render auto-generates a strong secret
+
+      # ── Application ──────────────────────────────────────────────────────
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "False"
+
+      # ── CORS — set to your actual Vercel URL after deploy ─────────────
+      - key: CORS_ORIGINS
+        value: https://your-app.vercel.app   # REPLACE with real URL
+      - key: FRONTEND_URL
+        value: https://your-app.vercel.app   # REPLACE with real URL
+
+      # ── Redis (use Upstash free tier — see README for setup) ──────────
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+
+      # ── Email ─────────────────────────────────────────────────────────
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        value: noreply@interviewportal.com
+
+      # ── Code Execution (public Piston API, no key required) ───────────
+      - key: PISTON_API_URL
+        value: https://emkc.org/api/v2/piston
+
+  # ── Celery Worker (background email / scheduled tasks) ─────────────────────
+  - type: worker
+    name: interview-portal-celery
+    env: python
+    region: oregon
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.celery_worker worker --loglevel=info --concurrency=2
+
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        value: noreply@interviewportal.com
+      - key: FRONTEND_URL
+        value: https://your-app.vercel.app   # REPLACE with real URL
