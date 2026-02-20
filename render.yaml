@@ -49,11 +49,11 @@ services:
       - key: DEBUG
         value: "False"
 
-      # ── CORS — update to your Vercel URL after frontend deploys ─────────
+      # ── CORS ─────────────────────────────────────────────────────────────
       - key: CORS_ORIGINS
-        value: http://localhost:5173,http://localhost:5174
+        value: https://interview-portal-frontend-psi.vercel.app,http://localhost:5173
       - key: FRONTEND_URL
-        value: http://localhost:5173
+        value: https://interview-portal-frontend-psi.vercel.app
 
       # ── Redis (use Upstash free tier — see README for setup) ──────────
       - key: REDIS_URL
