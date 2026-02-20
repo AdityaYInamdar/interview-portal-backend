@@ -16,7 +16,7 @@ from app.api.v1 import auth, interviews, candidates, companies, interviewers, co
 # Socket.IO server
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=settings.CORS_ORIGINS,
+    cors_allowed_origins=settings.cors_origins_list,
     logger=True,
     engineio_logger=True
 )
@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Starting Interview Portal API...")
     print(f"📝 Environment: {settings.ENVIRONMENT}")
-    print(f"🔒 CORS Origins: {settings.CORS_ORIGINS}")
+    print(f"🔒 CORS Origins: {settings.cors_origins_list}")
     
     yield
     
@@ -61,7 +61,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
